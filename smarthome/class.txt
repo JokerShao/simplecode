@@ -1,0 +1,319 @@
+智能家居
+
+方案一：
+	智能开关(单片机) wifi
+	控制端  手机、平板等移动设备
+
+方案二：
+	智能开关(单片机)  射频RF  2.4G 433M	
+	智能家庭网关(arm) RF 2.4G 433M wifi
+	物联网云服务器
+	控制端 手机、平板等移动设备
+
+	附加：视频监控
+	      抓拍
+
+
+刷机
+	刷机rom包括：
+	 boot.img  	内核
+	 rootfs.ext2    文件系统
+         ubootpak.bin   bootloader
+
+	刷机步骤：
+	1.配置minicom
+		sudo minicom -s
+	2.连线
+		usb
+		串口线
+		电源线
+	3.运行minicom
+		sudo minicom
+	4.重启开发板
+		在启动倒计时完成之前敲键盘
+	5.在开发板上运行fastboot命令
+		X6818# fastboot
+	6.在PC上开始刷机
+		sudo fastboot flash ubootpak ./ubootpak.bin
+		sudo fastboot flash boot ./boot.img
+		sudo fastboot flash system ./rootfs.ext2
+	7.在开发板上设置环境变量
+		[zyli@Uboot]# set bootargs root=/dev/mmcblk0p2 lcd=wy070ml tp=gslx680-linux              
+		[zyli@Uboot]# set bootcmd "ext4load mmc 2:1 0x48000000 uImage;bootm 0x48000000"
+		[zyli@Uboot]# sav
+		[zyli@Uboot]# reset
+
+
+配置nfs
+	sudo vim /etc/exports
+	添加一行：/abc *(rw,no_root_squash,sync)
+	sudo mkdir /abc
+	sudo chmod 777 /abc
+	sudo /etc/init.d/nfs-kernel-server restart
+	
+	测试：
+	sudo mount 127.0.0.1:/abc /mnt
+	sudo umount /mnt
+	
+	
+物联网云服务器
+	yeelink
+	www.yeelink.net
+
+	yeelink作用
+	手机----->yeelink---->平板
+                    |
+		    V
+		其他终端设备
+		其他计算机设备
+		智能家庭网关
+		环境采集器
+	
+	每一个帐号可以创建若干个设备
+	设备：存储空间
+	[---------------------------]
+	每一个设备可以包含若干个传感器
+	传感器：存储空间
+
+	设备和传感器
+	uplooking [t1|t2|t3|t4|t5|t6]			
+
+	在yeelink服务器每一个传感器和每一个设备都有一个唯一ID
+
+	在向yeelink服务器传递数据或者获取数据的时候要注意3个ID
+	1.API-key    用来表示用户
+	2.设备ID     用来表示设备
+	3.传感器ID   用来表示传感器
+
+QT多线程编程
+	QT默认有一个线程，叫做主线程/UI线程
+	UI的作用是绘制图形界面
+	所以在UI线程中不能睡眠，不能阻塞，不能死循环
+	
+	采集数据(有可能阻塞)------>界面显示
+	新线程------信号与槽------>UI线程
+
+	w------>方法运行在主线程--->显示数据(根据开关状态设置label)
+		信号与槽 
+	gssfs-->方法运行在新线程--->采集数据(获取开关状态)
+	
+	实例：通过手机控制QT程序
+	      QT程序把温湿度传送到服务器，手机查看	
+
+交叉编译：
+	1.C程序
+		arm-linux-*
+
+		安装编译器：
+		tar -xvf arm-linux-gcc-4.5.1.tar.bz2
+		cd 4.5.1/bin/
+		pwd
+		复制路径,然后添加PATH环境变量	
+		vim ~/.bashrc
+		在最后一行添加
+		PATH=/home/zyli/s5p6818sdk_lzy1/package/4.5.1/bin:$PATH
+
+		如果终端是在添加PATH环境变量之前打开的，则需要source ~/.bashrc
+	
+		测试：
+		touch hello.c
+		arm-linux-gcc hello.c -o hello
+		file hello
+
+	2.QT程序
+		qmake make	
+		sudo mkdir /home/zyli/
+		sudo chown uplooking:uplooking /home/zyli
+		mkdir /home/zyli/s5p6818sdk_lzy1/Linux/src/buildroot/output -p
+		tar -xvf host.tar.bz2 -C /home/zyli/s5p6818sdk_lzy1/Linux/src/buildroot/output
+
+		测试：运行如下命令
+		/home/zyli/s5p6818sdk_lzy1/Linux/src/buildroot/output/host/usr/bin/qmake -v
+		
+		用QTCreator创建一个工程(/home/zyli/bhht/armqt)
+		cd /home/zyli/bhht/armqt
+		/home/zyli/s5p6818sdk_lzy1/Linux/src/buildroot/output/host/usr/bin/qmake
+		make
+		file armqt
+
+
+把交叉编译完成的程序拷贝开发板运行
+	1.tftp
+	2.nfs
+	3.ftp
+	4.uart
+
+	
+	使用串口下载程序步骤
+	1.配置文件路径
+	sudo minicom -s
+	 ->Filenames and paths
+            ->B - Upload directory   : /home/zyli/bhht
+	 ->Save setup as dfl
+	
+	2.进入开发板终端
+	启动开发板
+	sudo minicom
+
+	3.下载文件
+	ctrl+a--->s
+	 ->zmodem
+	[Goto] 选择要进入的目录
+	[Okay] 选择要下载的文件
+
+
+	使用nfs下载程序
+	1.利用网络管理器配置PC IP
+	  统一添加配置bhht，IP=192.168.2.5 子网掩码:24
+	  以后如果电脑要连板子的话就选择bhht设置
+	2.查看IP
+	  [root@PC]# ifconfig
+	3.配置nfs服务
+	4.配置开发板IP
+	  [root@X6818]# ifconfig eth0 192.168.2.6
+	  [root@X6818]# ping 192.168.2.5
+	5.开发板挂在PC的共享目录
+	  [root@X6818]# mount -t nfs -o nolock,rw 192.168.2.5:/abc /mnt
+	  然后开发板就能看到PC上的文件
+	6.在PC上把要共享给开发板的文件拷贝到/abc
+	  [root@PC]# cp <path>/armqt <path>/hello /abc
+	7.在开发板上使用共享文件
+	  [root@X6818]# /mnt/hello
+	  [root@X6818]# /mnt/armqt
+	8.在不使用共享目录的时候需要卸载
+	  [root@X6818]# umount /mnt	
+
+智能家居项目之搭建界面
+	该部分由学员自己完成	
+
+设置程序自启动
+	[root@X6818]# vi /etc/init.d/S99qttest
+	case "$1" in                                                     
+  	start)                                                         
+  	      echo "Starting qttest..."                                
+14  	      #/usr/share/demo/qttest &                                
+15  	      SmartHome &                                              
+  	      ;;                          
+  	stop)                             
+  	      echo -n "Stopping qttest..."
+  	      ;;                          
+  	restart|reload)                            
+  	      "$0" stop                            
+  	      "$0" start                           
+  	      ;;                                   
+  	*)           
+
+在用户态操作硬件
+	shell命令行操作：
+	[root@X6818]# echo 1 > /sys/devices/platform/x6818-beep/state
+	[root@X6818]# echo 0 > /sys/devices/platform/x6818-beep/state
+	[root@X6818]# echo 1 > /sys/devices/platform/leds-gpio/leds/led1/brightness
+	[root@X6818]# echo 0 > /sys/devices/platform/leds-gpio/leds/led1/brightness
+	程序中操作
+	system("echo 1 > /sys/devices/platform/x6818-beep/state");
+
+	
+手机app远程控制板子
+	1.libyeelink_lzy.so ------------> X86
+	2.libyeelink_lzy.so ------------> arm
+
+	zyli@embsky:/abc$ arm-linux-g++ ledyeelink.cpp -o ledyeelink -L ./ -lyeelink_lzy
+	-L 指定动态库的位置
+	-l 指定动态库的名字
+
+	
+	把libyeelink_lzy.so拷贝到开发板的/lib
+	把ledyeelink拷贝到开发板的/bin
+	
+	在开发板上执行如下语句：
+	[root@X6818:~]# mount -t nfs -o nolock,rw 192.168.100.53:/abc /mnt/
+	[root@X6818:~]# cp /mnt/ledyeelink /bin/
+	[root@X6818:~]# cp /mnt/libyeelink_lzy.so  /lib
+	
+	[root@X6818:~]# ifconfig 
+	开发板默认是自动获取IP的，如果没有获取到，则需要手动启动dhcp来获取IP
+	前提是开发板连接能过连外网的网线
+	[root@X6818:~]# /etc/init.d/S40network restart
+
+	在板子上执行程序，然后用手机app控制
+	[root@X6818:~]# ledyeelink
+	
+用手机上的4个开关控制板子上的4个灯
+	该部分由学生自己完成	
+
+
+在嵌入式QT中使用libyeelink_lzy.so
+	1.打开SmartHome工程
+	2.在工程管理文件中添加
+		QT       += core gui network
+		INCLUDEPATH += /abc
+		LIBS += -L /abc -lyeelink_lzy
+	3.新建一个线程
+		GetStateThread:QThread
+		在getstatethread.h中添加：#include "QThread"
+		#ifndef GETSTATETHREAD_H
+		#define GETSTATETHREAD_H
+		
+		#include "QThread"
+		
+		class GetStateThread : public QThread
+		{
+		public:
+		    GetStateThread();
+		signals:
+		    void stateSignal(int state);
+		private:
+		    void run();
+		};
+		
+		#endif // GETSTATETHREAD_H	
+
+		实现：
+		#include "getstatethread.h"
+		#include "yeelink_lzy.h"
+		#include "QDebug"
+		
+		extern "C" {
+		#include "unistd.h"
+		}
+		
+		GetStateThread::GetStateThread()
+		{
+		
+		}
+		
+		void GetStateThread::run()
+		{
+		    while (1) {
+		        int ret = get_sensor_status("118.190.25.51", "359638", "409822", "cc18f9d60f96f69d2465a34258dcd485");
+		        if (ret < 0) {
+		            qDebug() << "get sensor state error";
+		            continue;
+		        }
+		        if (ret) {
+		            emit stateSignal(1);
+		        } else {
+		            emit stateSignal(0);
+		        }
+		        sleep(1);
+		    }
+		}
+
+		在主线程中创建新线程
+			该部分由学员自行编写
+	
+QT5 web编程
+	
+
+
+
+
+
+
+		
+
+
+
+
+
+

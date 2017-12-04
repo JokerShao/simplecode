@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android" >
+    <!-- 背景颜色 -->
+    <item android:id="@android:id/background">  
+        <shape>  
+            <corners android:radius="5dip" />  
+            <gradient 
+                android:startColor="#888"  
+                android:centerColor="#888"
+                 android:centerY="0.75"  
+                android:endColor="#888" 
+                android:angle="0" />  
+        </shape>  
+    </item>  
+    <!-- 在这里都使用了渐变色：startColor开始的颜色，centerColor中间颜色，endColor结束颜色
+    centerY中间的位置 ，如果写成centerX则进度条编程垂直的-->
+  <!-- 前景颜色 -->
+    <item android:id="@android:id/progress">  
+        <clip>
+            <shape>  
+                <corners android:radius="5dip" />  
+                <gradient 
+                    android:startColor="#ff0" 
+                    android:centerColor="#f80"
+                     android:centerY="0.75"  
+                    android:endColor="#f00" 
+                    android:angle="0" />  
+            </shape>  
+        </clip>  
+    </item> 
+    
+</layer-list>
