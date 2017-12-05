@@ -12,4 +12,4 @@ A gluttonous snake game.
 
 ## Screenshot
 
-<img width="400" height="250" src="https://github.com/JokerShao/snake/blob/master/img/MainWindow.png" /><img width="400" height="250" src="https://github.com/JokerShao/snake/blob/master/img/GameWindow.png" />
+<img width="400" height="250" src="https://github.com/JokerShao/simplecode/blob/master/snake/img/MainWindow.png" /><img width="400" height="250" src="https://github.com/JokerShao/simplecode/blob/master/snake/img/GameWindow.png" />
