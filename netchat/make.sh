@@ -1,11 +1,10 @@
 #!/usr/bin/env bash
 # AUTHOR:   joker
-# FILE:     build.sh
-# ROLE:     TODO (some explanation)
+# FILE:     make.sh
+# ROLE:     auto build this project
 # CREATED:  2017-12-04 14:27:06
-# MODIFIED: 2017-12-04 14:58:00
+# MODIFIED: 2017-12-05 11:05:28
 
-# build client
 if [[ $1 = "clean" ]]; then
 	cd client
 	make clean
@@ -21,4 +20,3 @@ else
 	mkdir build
 	make
 fi
-
