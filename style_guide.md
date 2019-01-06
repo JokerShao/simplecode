@@ -1,6 +1,6 @@
 # joker's style guide
 
-> date:2018-10-21  
+> update:2019-01-06  
 当代码是某个算法的实现时，命名规范应优先符合算法公式中的定义，以便理解。  
 代码释出版本号，三位数字：`1.2.2`，其中大版本号看产品经理，中位软件更新升级添加功能，末位bug修复。
 
@@ -53,9 +53,9 @@ enum UrlTableErrors {
     std::string table_name;
 
     struct UrlTableProperties {
-    string name;
-    int num_entries;
-    static Pool<UrlTableProperties>* pool;
+        string name;
+        int num_entries;
+        static Pool<UrlTableProperties>* pool;
     };
     ```
 
@@ -65,9 +65,9 @@ enum UrlTableErrors {
     ```C++
     class TableInfo {
     private:
-    string table_name_;
-    string tablename_;
-    static Pool<TableInfo>* pool_;
+        string table_name_;
+        string tablename_;
+        static Pool<TableInfo>* pool_;
     };
     ```
 
@@ -99,6 +99,27 @@ enum EnumType {
     OP_START
 };
 ```
+
+### 3 头文件包含
+
+1. 用`#pragma once`避免头文件重复包含
+
+2. 若头文件中使用了其他定义，应将定义所在头文件包含进来；如果只用声明，则使用前向声明的方法
+
+3. 在`stdafx.h`中放置项目中使用较多的系统和第三方的依赖头，**经常改动的头文件不要放在里面**
+
+4. 包含头文件时应加上文件相对路径，如`#include "base/logging.h"`，而不是`#include "logging.h"`
+
+5. 对于`xxx.cpp`，头文件包含顺序应为：
+
+    ```text
+    xxx.h
+    OS SDK.h
+    C标准库.h
+    C++标准库.h
+    其他第三方库.h
+    本项目内.h
+    ```
 
 ## Python
 
